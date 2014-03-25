@@ -44,11 +44,6 @@ namespace Zookeeper.PSProvider
             return this.innerZookeeper.GetStat(ZookeeperPath.Normalize(path));
         }
 
-        public IEnumerable<string> GetChildrenRecurse(string path)
-        {
-            return this.innerZookeeper.GetChildrenRecurse(ZookeeperPath.Normalize(path));
-        }
-
         public GetDataResponse GetData(string path)
         {
             return this.innerZookeeper.GetData(ZookeeperPath.Normalize(path));

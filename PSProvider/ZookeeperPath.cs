@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -55,9 +56,15 @@ namespace Zookeeper.PSProvider
 
         public static string GetItemName(string path)
         {
+            path = Normalize(path);
             if (path == string.Empty)
             {
                 return string.Empty;
+            }
+
+            if (path == Separator)
+            {
+                return Separator;
             }
 
             path = path.TrimEnd(CharSeparator);
@@ -74,6 +81,15 @@ namespace Zookeeper.PSProvider
             }
 
             return path.Substring(lastSeparator + 1);
+        }
+
+        public static string Join(string path, string item)
+        {
+            path = Normalize(path);
+            var fullPath = path + Separator + item;
+
+            const string doubleSeparator = Separator + Separator;
+            return fullPath.Replace(doubleSeparator, Separator);
         }
     }
 }

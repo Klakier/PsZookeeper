@@ -11,13 +11,13 @@ Background:
 	And Powershell execute scheduled commands
 
 Scenario: 'ls' should return all items in path
-	Then Executing script 'ls' should return following items
+	Then Executing script '(ls).Name' should return following items
 	| Item       |
 	| zookeeper |
 
 Scenario: 'cd' should change current dictionary
 	When Powershell execute following script 'cd zookeeper'
-	Then Executing script 'ls' should return following items
+	Then Executing script '(ls).Name' should return following items
 	| Item  |
 	| quota |
 	Then Executing script '$pwd.Path' should return following items
@@ -26,7 +26,7 @@ Scenario: 'cd' should change current dictionary
 
 Scenario: new-item should create new item
 	When Powershell execute following script 'New-Item -name Test -ItemType Node -Value "Test"'
-	Then Executing script 'ls' should return following items
+	Then Executing script '(ls).Name' should return following items
 	| Item      |
 	| Test      |
 	| zookeeper |
@@ -60,7 +60,7 @@ Scenario: Sub folders should work fine
 Scenario: Create new item in sub folder
 	When Powershell execute following script 'New-Item -name Test'
 	And Powershell execute following script 'New-Item -name SubTest -Path .\Test'
-	Then Executing script 'ls .\Test' should return following items
+	Then Executing script '(ls .\Test).Name' should return following items
 	| Item       |
 	| SubTest |
 
@@ -76,8 +76,19 @@ Scenario: Get-ChildItem -Recurse should retrun elements Recurse
 	When Powershell execute following script 'New-Item -name SubTest -Path .\Test\'
 	When Powershell execute following script 'New-Item -name SubSubTest1 -Path .\Test\SubTest'
 	When Powershell execute following script 'New-Item -name SubSubTest2 -Path .\Test\SubTest'
-	Then Executing script '(Get-ChildItem -Recurse -Path Tes*) | Select -ExpandProperty Name' should return following items
+	Then Executing script 'Get-ChildItem -Recurse -Path Tes*' should return following items
 	| Item        |
 	| SubTest     |
 	| SubSubTest2 |
 	| SubSubTest1 |
+
+Scenario: Get-ChildItem -Recurse without path should retrun elements Recurse
+	When Powershell execute following script 'New-Item -name Test'
+	And Powershell execute following script 'New-Item -name SubTest -Path .\Test\'
+	Then Executing script '(Get-ChildItem -Recurse).Name' should return following items
+	| Item      |
+	| /         |
+	| Test      |
+	| SubTest   |
+	| zookeeper |
+	| quota     |

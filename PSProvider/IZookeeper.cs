@@ -10,7 +10,6 @@ namespace Zookeeper.PSProvider
         void CreateItem(string path, byte[] data, CreateMode createMode);
         NodeInfo GetItem(string path);
         Stat GetStat(string path);
-        IEnumerable<string> GetChildrenRecurse(string path);
         GetDataResponse GetData(string path);
         void SetData(string path, byte[] data, int version);
     }

@@ -1,8 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Management.Automation;
-using System.Management.Automation.Runspaces;
-using System.Runtime.InteropServices;
 using NUnit.Framework;
 using TechTalk.SpecFlow;
 
@@ -40,7 +37,7 @@ namespace Zookeeper.PSProvider.Intergration.Tests.Then
         public void ThenExecutingScriptShouldReturnFollowingItems(string script, IEnumerable<string> result)
         {
             this._context.PowershellHost.AddScript(script);
-            var psResult = this._context.PowershellHost.Invoke<string>();
+            var psResult = this._context.PowershellHost.Invoke<object>();
 
             this._context.PowershellHost.Commands.Clear();
 

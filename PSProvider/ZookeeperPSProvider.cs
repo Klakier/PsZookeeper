@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Management.Automation;
@@ -59,14 +60,26 @@ namespace Zookeeper.PSProvider
         {
             foreach (var subItems in this.ZookeeperDriver.Zookeeper.GetChildren(path))
             {
-                this.WriteItemObject(subItems, subItems, true);
+                this.WriteItem(ZookeeperPath.Join(path, subItems));
             }
         }
 
         protected override void GetItem(string path)
         {
-            var item = this.ZookeeperDriver.Zookeeper.GetItem(path);
-            WriteItemObject(item, path, true);
+            var exit = this.ZookeeperDriver.Zookeeper.PathExist(path);
+            if (!exit)
+            {
+                return;
+            }
+
+            this.WriteItem(path);
+        }
+
+        private void WriteItem(string fullPath)
+        {
+            fullPath = ZookeeperPath.Normalize(fullPath);
+            var name = ZookeeperPath.GetItemName(fullPath);
+            this.WriteItemObject(new Item(name, fullPath), fullPath, true);
         }
 
         protected override string[] ExpandPath(string path)
@@ -96,7 +109,7 @@ namespace Zookeeper.PSProvider
 
         protected override bool ConvertPath(string path, string filter, ref string updatedPath, ref string updatedFilter)
         {
-            Console.WriteLine("Convert path");
+            Console.WriteLine("Convert fullPath");
             return base.ConvertPath(path, filter, ref updatedPath, ref updatedFilter);
         }
 
@@ -144,13 +157,27 @@ namespace Zookeeper.PSProvider
 
         protected override void GetChildItems(string path, bool recurse)
         {
-            var childrens = recurse
-                ? this.ZookeeperDriver.Zookeeper.GetChildrenRecurse(path)
-                : this.ZookeeperDriver.Zookeeper.GetChildren(path);
-
-            foreach (var children in childrens)
+            if (recurse)
             {
-                WriteItemObject(children, children, true);
+                this.GetChildrenRecurse(path, this.WriteItem);
+            }
+            else
+            {
+                foreach (var children in this.ZookeeperDriver.Zookeeper.GetChildren(path))
+                {
+                    this.WriteItem(ZookeeperPath.Join(path, children));
+                }
+            }
+        }
+
+        private void GetChildrenRecurse(string path, Action<string> itemAction)
+        {
+            var normalizePath = ZookeeperPath.Normalize(path);
+            itemAction(normalizePath);
+            foreach (var item in this.ZookeeperDriver.Zookeeper.GetChildren(path))
+            {
+                var fullPath = ZookeeperPath.Join(normalizePath, item);
+                this.GetChildrenRecurse(fullPath, itemAction);
             }
         }
 
@@ -227,5 +254,21 @@ namespace Zookeeper.PSProvider
         {
             return null;
         }
+    }
+
+    public class Item
+    {
+        public Item(string name, string fullName)
+        {
+            this.Name = name;
+            this.FullName = fullName;
+        }
+
+        public Item()
+        {
+        }
+
+        public string Name { get; set; }
+        public string FullName { get; set; }
     }
 }

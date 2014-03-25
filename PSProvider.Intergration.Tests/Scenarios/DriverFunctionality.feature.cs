@@ -102,7 +102,7 @@ this.FeatureBackground();
             table1.AddRow(new string[] {
                         "zookeeper"});
 #line 14
- testRunner.Then("Executing script \'ls\' should return following items", ((string)(null)), table1, "Then ");
+ testRunner.Then("Executing script \'(ls).Name\' should return following items", ((string)(null)), table1, "Then ");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -124,7 +124,7 @@ this.FeatureBackground();
             table2.AddRow(new string[] {
                         "quota"});
 #line 20
- testRunner.Then("Executing script \'ls\' should return following items", ((string)(null)), table2, "Then ");
+ testRunner.Then("Executing script \'(ls).Name\' should return following items", ((string)(null)), table2, "Then ");
 #line hidden
             TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
                         "Item"});
@@ -156,7 +156,7 @@ this.FeatureBackground();
             table4.AddRow(new string[] {
                         "zookeeper"});
 #line 29
- testRunner.Then("Executing script \'ls\' should return following items", ((string)(null)), table4, "Then ");
+ testRunner.Then("Executing script \'(ls).Name\' should return following items", ((string)(null)), table4, "Then ");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -283,7 +283,7 @@ this.FeatureBackground();
             table9.AddRow(new string[] {
                         "SubTest"});
 #line 63
- testRunner.Then("Executing script \'ls .\\Test\' should return following items", ((string)(null)), table9, "Then ");
+ testRunner.Then("Executing script \'(ls .\\Test).Name\' should return following items", ((string)(null)), table9, "Then ");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -339,8 +339,40 @@ this.FeatureBackground();
             table11.AddRow(new string[] {
                         "SubSubTest1"});
 #line 79
- testRunner.Then("Executing script \'(Get-ChildItem -Recurse -Path Tes*) | Select -ExpandProperty Na" +
-                    "me\' should return following items", ((string)(null)), table11, "Then ");
+ testRunner.Then("Executing script \'Get-ChildItem -Recurse -Path Tes*\' should return following item" +
+                    "s", ((string)(null)), table11, "Then ");
+#line hidden
+            this.ScenarioCleanup();
+        }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Get-ChildItem -Recurse without path should retrun elements Recurse")]
+        public virtual void Get_ChildItem_RecurseWithoutPathShouldRetrunElementsRecurse()
+        {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get-ChildItem -Recurse without path should retrun elements Recurse", ((string[])(null)));
+#line 85
+this.ScenarioSetup(scenarioInfo);
+#line 3
+this.FeatureBackground();
+#line 86
+ testRunner.When("Powershell execute following script \'New-Item -name Test\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 87
+ testRunner.And("Powershell execute following script \'New-Item -name SubTest -Path .\\Test\\\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+            TechTalk.SpecFlow.Table table12 = new TechTalk.SpecFlow.Table(new string[] {
+                        "Item"});
+            table12.AddRow(new string[] {
+                        "/"});
+            table12.AddRow(new string[] {
+                        "Test"});
+            table12.AddRow(new string[] {
+                        "SubTest"});
+            table12.AddRow(new string[] {
+                        "zookeeper"});
+            table12.AddRow(new string[] {
+                        "quota"});
+#line 88
+ testRunner.Then("Executing script \'(Get-ChildItem -Recurse).Name\' should return following items", ((string)(null)), table12, "Then ");
 #line hidden
             this.ScenarioCleanup();
         }

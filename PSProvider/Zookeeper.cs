@@ -20,7 +20,6 @@ namespace Zookeeper.PSProvider
                 configuration.SessionTimeout);
         }
 
-
         public IEnumerable<string> GetChildren(string path)
         {
             return this.client.GetChildren(path, false).Result;
@@ -52,11 +51,6 @@ namespace Zookeeper.PSProvider
         public Stat GetStat(string path)
         {
             return this.client.Exists(path, false).Result;
-        }
-
-        public IEnumerable<string> GetChildrenRecurse(string path)
-        {
-            throw new NotImplementedException();
         }
 
         public GetDataResponse GetData(string path)
