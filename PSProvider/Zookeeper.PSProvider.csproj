@@ -31,9 +31,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\log4net.1.2.11\lib\net40-full\log4net.dll</HintPath>
+    <Reference Include="FastSocket.Client">
+      <HintPath>..\..\..\..\..\Repositories\PsZookeeper\lib\Zookeeper.Net\FastSocket.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="FastSocket.SocketBase">
+      <HintPath>..\..\..\..\..\Repositories\PsZookeeper\lib\Zookeeper.Net\FastSocket.SocketBase.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration.Install" />
@@ -46,25 +48,38 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="ZooKeeperNet">
-      <HintPath>..\packages\ZooKeeperNet.1.0.0.0\lib\net40\ZooKeeperNet.dll</HintPath>
+    <Reference Include="Zookeeper">
+      <HintPath>..\..\..\..\..\Repositories\PsZookeeper\lib\Zookeeper.Net\Zookeeper.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration.cs" />
+    <Compile Include="GetContentDynamicParameters.cs" />
+    <Compile Include="IZookeeper.cs" />
     <Compile Include="LogWatcher.cs" />
+    <Compile Include="NewItemParamters.cs" />
     <Compile Include="NodeInfo.cs" />
+    <Compile Include="NormalizePathZookeeperDecorator.cs" />
+    <Compile Include="Serializer\EncodingType.cs" />
+    <Compile Include="Serializer\ISerializer.cs" />
+    <Compile Include="Serializer\RawSerializer.cs" />
+    <Compile Include="Serializer\Utf8ContentReader.cs" />
+    <Compile Include="Serializer\Utf8Serializer.cs" />
+    <Compile Include="Serializer\ZookeeperContentWriter.cs" />
+    <Compile Include="SetContentWriterDynamicParameters.cs" />
+    <Compile Include="ZookeeperPathTokens.cs" />
+    <Compile Include="Zookeeper.cs" />
+    <Compile Include="ZookeeperFactory.cs" />
+    <Compile Include="ZookeeperPath.cs" />
     <Compile Include="Utf8ContentWriter.cs" />
     <Compile Include="ZookeeperConnectionFactory.cs" />
-    <Compile Include="ZookeeperContentReader.cs" />
+    <Compile Include="RawContentReader.cs" />
     <Compile Include="ZookeeperPSDriverInfo.cs" />
     <Compile Include="ZookeeperPSProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ZookeeperSnapIn.cs">
       <SubType>Component</SubType>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

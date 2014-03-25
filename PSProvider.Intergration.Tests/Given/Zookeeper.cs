@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using Org.Apache.Zookeeper.Data;
+using Sodao.Zookeeper;
 using TechTalk.SpecFlow;
 
 namespace Zookeeper.PSProvider.Intergration.Tests.Given
@@ -18,14 +18,14 @@ namespace Zookeeper.PSProvider.Intergration.Tests.Given
         [Given(@"I have zookeeper client connected to '(.*)'")]
         public void GivenIHaveZookeeperClientConnectedTo(string addresss)
         {
-            this._context.ZookeeperClient = new ZooKeeperNet.ZooKeeper(addresss, TimeSpan.FromSeconds(10), new LogWatcher());
+            this._context.ZookeeperClient = new ZookClient(string.Empty, addresss, TimeSpan.FromSeconds(10), new LogWatcher());
         }
 
         [Given(@"I clear zookeeper configuration")]
         public void GivenIClearZookeeperConfiguration()
         {
-            var childs = this._context.ZookeeperClient.GetChildren(ZookeeperPsDriverInfo.Separator, false);
-            foreach (var subElement in childs.Select(s => ZookeeperPsDriverInfo.Separator + s).Where(s => s != ZookeeperPsDriverInfo.SystemFolder))
+            var childs = this._context.ZookeeperClient.GetChildren(ZookeeperPath.Separator, false).Result;
+            foreach (var subElement in childs.Select(s => ZookeeperPath.Separator + s).Where(s => s != ZookeeperPath.SystemFolder))
             {
                 this.Remove(subElement);
             }
@@ -33,7 +33,7 @@ namespace Zookeeper.PSProvider.Intergration.Tests.Given
 
         public void Remove(string path)
         {
-            var state = this._context.ZookeeperClient.Exists(path, false);
+            var state = this._context.ZookeeperClient.Exists(path, false).Result;
             if (state == null)
             {
                 return;
@@ -41,7 +41,7 @@ namespace Zookeeper.PSProvider.Intergration.Tests.Given
 
             if (state.NumChildren != 0)
             {
-                foreach (var element in this._context.ZookeeperClient.GetChildren(path, false))
+                foreach (var element in this._context.ZookeeperClient.GetChildren(path, false).Result)
                 {
                     this.Remove(path + "/" + element);
                 }

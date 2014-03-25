@@ -4,30 +4,24 @@ using System.IO;
 using System.Linq;
 using System.Management.Automation.Provider;
 using System.Text;
-using ZooKeeperNet;
 
 namespace Zookeeper.PSProvider
 {
     public class Utf8ContentWriter : IContentWriter
     {
-        private readonly ZookeeperPsDriverInfo _connection;
-        private readonly string _path;
+        private readonly Action<byte[]> saveData;
 
-        public Utf8ContentWriter(ZookeeperPsDriverInfo connection, string path)
+        public Utf8ContentWriter(Action<byte[]> saveData)
         {
-            _connection = connection;
-            _path = path;
+            this.saveData = saveData;
         }
 
         public void Dispose()
         {
-            throw new NotImplementedException();
         }
 
         public IList Write(IList content)
         {
-            var stat = this._connection.Execute(z => z.Exists(this._path, false));
-
             var newData = content.OfType<string>().ToArray();
             if (newData.Length != content.Count)
             {
@@ -36,7 +30,8 @@ namespace Zookeeper.PSProvider
 
             var stringData = string.Join(Environment.NewLine, newData);
             var binaryData = Encoding.UTF8.GetBytes(stringData);
-            this._connection.Execute(z => z.SetData(this._path, binaryData, stat.Version));
+
+            this.saveData(binaryData);
 
             return new ArrayList()
             {

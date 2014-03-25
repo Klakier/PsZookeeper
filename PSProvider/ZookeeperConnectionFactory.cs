@@ -1,13 +1,13 @@
 ﻿using System;
-using ZooKeeperNet;
+using Sodao.Zookeeper;
 
 namespace Zookeeper.PSProvider
 {
     public class ZookeeperConnectionFactory
     {
-        public static IZooKeeper CreateZookeeper(string connectionString)
+        public static IZookClient CreateZookeeper(string connectionString)
         {
-            return new ZooKeeperNet.ZooKeeper(connectionString, TimeSpan.FromMinutes(10), new LogWatcher());
+            return new ZookClient("/", connectionString, TimeSpan.FromMinutes(10), new LogWatcher());
         }
     }
 }

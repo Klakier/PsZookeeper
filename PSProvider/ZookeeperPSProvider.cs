@@ -1,23 +1,16 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Provider;
-using System.Text;
 using System.Text.RegularExpressions;
-using log4net.Appender;
-using Org.Apache.Zookeeper.Data;
-using ZooKeeperNet;
+using Zookeeper.PSProvider.Serializer;
 
 namespace Zookeeper.PSProvider
 {
-    [CmdletProvider("Zookeeeper", ProviderCapabilities.None)]
+    [CmdletProvider("Zookeeeper", ProviderCapabilities.ExpandWildcards)]
     public class ZookeeperPsProvider : NavigationCmdletProvider, IContentCmdletProvider
     {
-        private static readonly Regex PathPattern = new Regex(".*");
         protected override PSDriveInfo NewDrive(PSDriveInfo drive)
         {
             // check if drive object is null
@@ -47,115 +40,95 @@ namespace Zookeeper.PSProvider
                 return null;
             }
 
-            return new ZookeeperPsDriverInfo(drive)
-            {
-            };
+            var configuration = (this.DynamicParameters as Configuration) ?? new Configuration();
+
+            return new ZookeeperPsDriverInfo(drive, ZookeeperFactory.Create(configuration));
+        }
+
+        protected override object NewDriveDynamicParameters()
+        {
+            return new Configuration();
         }
 
         protected override bool IsValidPath(string path)
         {
-            return PathPattern.IsMatch(path);
-        }
-
-        protected override void SetItem(string path, object value)
-        {
-            Console.WriteLine("Set item");
-            base.SetItem(path, value);
+            return ZookeeperPath.IsValid(path);
         }
 
         protected override void GetChildNames(string path, ReturnContainers returnContainers)
         {
-            var normalizedPath = this.NormalizePath(path);
-            foreach (var item in this.ZookeeperDriver.Execute(s => s.GetChildren(normalizedPath, false)))
+            foreach (var subItems in this.ZookeeperDriver.Zookeeper.GetChildren(path))
             {
-                this.WriteItemObject(item, item, true);
+                this.WriteItemObject(subItems, subItems, true);
             }
         }
 
         protected override void GetItem(string path)
         {
-            var stat = this.GetState(path);
-            if (stat == null)
-            {
-                return;
-            }
-
-            var data = this.GetData(path, stat);
-            var nodeInfo = new NodeInfo
-            {
-                Data = data,
-                NumberOfChildren = stat.NumChildren,
-                Version = stat.Version
-            };
-
-            WriteItemObject(nodeInfo, path, true);
-        }
-
-        private string GetData(string path, Stat stat)
-        {
-            var normalizedPath = this.NormalizePath(path);
-            var data = this.ZookeeperDriver.Execute(z => z.GetData(normalizedPath, false, stat));
-            return Encoding.Default.GetString(data);
+            var item = this.ZookeeperDriver.Zookeeper.GetItem(path);
+            WriteItemObject(item, path, true);
         }
 
         protected override string[] ExpandPath(string path)
         {
-            Console.WriteLine("ExpandPath");
-            return base.ExpandPath(path);
+            throw new NotSupportedException("ExpandPath");
         }
 
         protected override bool HasChildItems(string path)
         {
-            var stat = this.GetState(path);
+            var stat = this.ZookeeperDriver.Zookeeper.GetStat(path);
             return stat.NumChildren != 0;
         }
 
         protected override string GetChildName(string path)
         {
-            var normalizedPath = this.NormalizePath(path);
-            if (!normalizedPath.EndsWith(ZookeeperPsDriverInfo.WildCard))
+            var tokens = ZookeeperPath.Tokenize(path);
+            if (!tokens.HasWildCard)
             {
                 return base.GetChildName(path);
             }
 
-            var baseResult = base.GetChildName(path);
-            var lastSeperator = normalizedPath.LastIndexOf(ZookeeperPsDriverInfo.Separator);
-            lastSeperator = lastSeperator >= 0 ? lastSeperator + 1 : lastSeperator;
+            var regex = new Regex(tokens.WildCardPattern);
 
-            var knownPart = normalizedPath.Substring(0, lastSeperator);
-            var searchPart = normalizedPath.Substring(lastSeperator, normalizedPath.Length - lastSeperator);
-
-            knownPart = knownPart.TrimEnd('/');
-            knownPart = string.IsNullOrEmpty(knownPart) ? ZookeeperPsDriverInfo.Separator : knownPart;
-            var items = this.ZookeeperDriver.Execute(s => s.GetChildren(knownPart, false));
-
-            var pattern = searchPart.Replace("*", ".*");
-
-            var result = items.FirstOrDefault(s => Regex.IsMatch(s, pattern));
+            var result = this.ZookeeperDriver.Zookeeper.GetChildren(tokens.KnwonPath).FirstOrDefault(regex.IsMatch);
             return result;
         }
 
-        protected override string GetParentPath(string path, string root)
+        protected override bool ConvertPath(string path, string filter, ref string updatedPath, ref string updatedFilter)
         {
-            var result = base.GetParentPath(path, root);
-            return result;
+            Console.WriteLine("Convert path");
+            return base.ConvertPath(path, filter, ref updatedPath, ref updatedFilter);
         }
 
         protected override void NewItem(string path, string itemTypeName, object newItemValue)
         {
-            if (!itemTypeName.Equals("node", StringComparison.InvariantCultureIgnoreCase))
+            var parameters = (this.DynamicParameters as NewItemParamters) ?? new NewItemParamters();
+            if (!string.IsNullOrWhiteSpace(itemTypeName))
             {
-                throw new NotSupportedException("Only supported item type name is 'Node'");
+                this.WriteWarning("itemTypeName is ignored");
             }
 
-            if (newItemValue != null && !(newItemValue is string))
-            {
-                throw new NotSupportedException("Only strings are supported as new item value");
-            }
+            this.ZookeeperDriver.Zookeeper.CreateItem(
+                path,
+                this.GetSerializer(parameters.Encoding).Serialize(newItemValue),
+                parameters.CreateMode);
+        }
 
-            var normalizedPath = this.NormalizePath(path);
-            var date = newItemValue == null ? new byte[0] : Encoding.Default.GetBytes(newItemValue.ToString());
-            this.ZookeeperDriver.Execute(z => z.Create(normalizedPath, date, Ids.OPEN_ACL_UNSAFE, CreateMode.Persistent));
+        private ISerializer GetSerializer(EncodingType encoding)
+        {
+            switch (encoding)
+            {
+                case EncodingType.Raw:
+                    return new RawSerializer();
+                case EncodingType.Utf8:
+                default:
+                    return new Utf8Serializer();
+            }
+        }
+
+        protected override object NewItemDynamicParameters(string path, string itemTypeName, object newItemValue)
+        {
+            return new NewItemParamters();
         }
 
         protected override bool IsItemContainer(string path)
@@ -169,39 +142,16 @@ namespace Zookeeper.PSProvider
             return result;
         }
 
-        protected override bool ConvertPath(string path, string filter, ref string updatedPath, ref string updatedFilter)
-        {
-            return base.ConvertPath(path, filter, ref updatedPath, ref updatedFilter);
-        }
-
-        protected override object GetChildNamesDynamicParameters(string path)
-        {
-            return base.GetChildNamesDynamicParameters(path);
-        }
-
-        protected override object ItemExistsDynamicParameters(string path)
-        {
-            return base.ItemExistsDynamicParameters(path);
-        }
-
-        protected override object SetItemDynamicParameters(string path, object value)
-        {
-            return base.SetItemDynamicParameters(path, value);
-        }
-
         protected override void GetChildItems(string path, bool recurse)
         {
-            var normalizedPath = NormalizePath(path);
-            var childrens = this.ZookeeperDriver.Execute(z => z.GetChildren(normalizedPath, false));
+            var childrens = recurse
+                ? this.ZookeeperDriver.Zookeeper.GetChildrenRecurse(path)
+                : this.ZookeeperDriver.Zookeeper.GetChildren(path);
+
             foreach (var children in childrens)
             {
                 WriteItemObject(children, children, true);
             }
-        }
-
-        protected override void InvokeDefaultAction(string path)
-        {
-            base.InvokeDefaultAction(path);
         }
 
         protected override Collection<PSDriveInfo> InitializeDefaultDrives()
@@ -212,40 +162,7 @@ namespace Zookeeper.PSProvider
 
         protected override bool ItemExists(string path)
         {
-            var state = GetState(path);
-            return state != null;
-        }
-
-        private Stat GetState(string path)
-        {
-            var normalizedPath = this.NormalizePath(path);
-            var state = this.ZookeeperDriver.Execute(z => z.Exists(normalizedPath, false));
-
-            return state;
-        }
-
-        protected override string NormalizeRelativePath(string path, string basePath)
-        {
-            return base.NormalizeRelativePath(path, basePath);
-        }
-
-        protected override object GetItemDynamicParameters(string path)
-        {
-            return base.GetItemDynamicParameters(path);
-        }
-
-        private string NormalizePath(string path)
-        {
-            var p = path.IndexOf(':');
-            if (p < 0)
-            {
-                return path.Replace(@"\", "/");
-            }
-
-            path = path.Remove(0, p + 1);
-            path = path.TrimStart('\\');
-            path = "/" + path;
-            return path.Replace(@"\", "/");
+            return this.ZookeeperDriver.Zookeeper.PathExist(path);
         }
 
         public ZookeeperPsDriverInfo ZookeeperDriver
@@ -255,24 +172,22 @@ namespace Zookeeper.PSProvider
 
         public IContentReader GetContentReader(string path)
         {
-            var normalizedPath = this.NormalizePath(path);
-            var stat = this.GetState(path);
-
-            var data = this.ZookeeperDriver.Execute(z => z.GetData(normalizedPath, false, stat));
-
-            var encoding = GetEncoding();
-            if (encoding == EncodingType.Utf8)
-            {
-                return new Utf8ContentReader(data);
-            }
-            return new ZookeeperContentReader(stat, data);
+            var parametes = (this.DynamicParameters as GetContentDynamicParameters) ?? new GetContentDynamicParameters();
+            var data = this.ZookeeperDriver.Zookeeper.GetData(path);
+            var contentReader = this.GetReader(parametes.Encoding, data.Data);
+            return contentReader;
         }
 
-        private EncodingType GetEncoding()
+        private IContentReader GetReader(EncodingType encoding, byte[] data)
         {
-            var dynamicParametes = this.DynamicParameters as GetContentDynamicParameters;
-            var encoding = dynamicParametes != null ? dynamicParametes.Encoding : EncodingType.Default;
-            return encoding;
+            switch (encoding)
+            {
+                case EncodingType.Raw:
+                    return new RawContentReader(data);
+                case EncodingType.Utf8:
+                default:
+                    return new Utf8ContentReader(data);
+            }
         }
 
         public object GetContentReaderDynamicParameters(string path)
@@ -282,13 +197,20 @@ namespace Zookeeper.PSProvider
 
         public IContentWriter GetContentWriter(string path)
         {
-            var normalizedPath = this.NormalizePath(path);
-            var encoding = this.GetEncoding();
-            if (encoding == EncodingType.Utf8)
+            var paramets = (this.DynamicParameters as GetContentDynamicParameters) ?? new GetContentDynamicParameters();
+            return this.GetWriter(paramets.Encoding, path, paramets.Version);
+        }
+
+        private IContentWriter GetWriter(EncodingType encoding, string path, int version)
+        {
+            switch (encoding)
             {
-                return new Utf8ContentWriter(this.ZookeeperDriver, normalizedPath);
+                case EncodingType.Raw:
+                    return new ZookeeperContentWriter(data => this.ZookeeperDriver.Zookeeper.SetData(path, data, version));
+                case EncodingType.Utf8:
+                default:
+                    return new Utf8ContentWriter(data => this.ZookeeperDriver.Zookeeper.SetData(path, data, version));
             }
-            return new ZookeeperContentWriter(this.ZookeeperDriver, normalizedPath);
         }
 
         public object GetContentWriterDynamicParameters(string path)
@@ -298,106 +220,12 @@ namespace Zookeeper.PSProvider
 
         public void ClearContent(string path)
         {
-            var normalizePath = this.NormalizePath(path);
-            var stat = this.GetState(normalizePath);
-
-            this.ZookeeperDriver.Execute(z => z.SetData(normalizePath, new byte[0], stat.Version));
+            this.ZookeeperDriver.Zookeeper.SetData(path, new byte[0], Zookeeper.AnyVersion);
         }
 
         public object ClearContentDynamicParameters(string path)
         {
             return null;
         }
-    }
-
-    public class ZookeeperContentWriter : IContentWriter
-    {
-        public ZookeeperContentWriter(ZookeeperPsDriverInfo connection, string normalizedPath)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IList Write(IList content)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Seek(long offset, SeekOrigin origin)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Close()
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class Utf8ContentReader : IContentReader
-    {
-        private readonly byte[] _data;
-        private bool _wasRead;
-
-        public Utf8ContentReader(byte[] data)
-        {
-            this._data = data;
-        }
-
-        public void Dispose()
-        {
-        }
-
-        public IList Read(long readCount)
-        {
-            if (this._wasRead)
-            {
-                return new ArrayList();
-            }
-
-            var value = Encoding.UTF8.GetString(this._data);
-
-            this._wasRead = true;
-
-            return new ArrayList() { value };
-        }
-
-        public void Seek(long offset, SeekOrigin origin)
-        {
-            if (offset < 0 && (origin == SeekOrigin.Current) || origin == SeekOrigin.End)
-            {
-                this._wasRead = false;
-            }
-
-            if (origin == SeekOrigin.Begin && offset > 0)
-            {
-                this._wasRead = true;
-            }
-        }
-
-        public void Close()
-        {
-        }
-    }
-
-    public class SetContentWriterDynamicParameters : GetContentDynamicParameters
-    {
-    }
-
-    public class GetContentDynamicParameters
-    {
-        [Parameter]
-        public EncodingType Encoding { get; set; }
-
-    }
-
-    public enum EncodingType
-    {
-        Default,
-        Utf8,
     }
 }

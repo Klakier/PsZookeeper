@@ -4,15 +4,16 @@ namespace Zookeeper.PSProvider
 {
     public class NodeInfo
     {
+        public string Name { get; set; }
         public int Version { get; set; }
 
         public int NumberOfChildren { get; set; }
 
-        public string Data { get; set; }
+        public byte[] Data { get; set; }
 
         public override string ToString()
         {
-            return string.Format("Version: {0}, NumberOfChildren: {1}, Data: {2}", Version, NumberOfChildren, Data);
+            return string.Format("Name: {0},Version: {1}, NumberOfChildren: {2}, Data: {3}", Name, Version, NumberOfChildren, Data);
         }
     }
 }

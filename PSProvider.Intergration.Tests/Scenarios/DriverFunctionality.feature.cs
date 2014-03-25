@@ -75,11 +75,11 @@ namespace Zookeeper.PSProvider.Intergration.Tests.Scenarios
  testRunner.And("Powershell add following script \'Add-PSSnapin ZookeeperPSSnap\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 7
  testRunner.And("Powershell add following script \'New-PSDrive -Name Zookeeper -PSProvider Zookeeep" +
-                    "er -Root 127.0.0.1:/\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+                    "er -Root /\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 8
  testRunner.And("Powershell add following script \'cd Zookeeper:\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 9
- testRunner.And("I have zookeeper client connected to \'127.0.0.1\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I have zookeeper client connected to \'127.0.0.1:2181\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 10
  testRunner.And("I clear zookeeper configuration", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 11
@@ -146,7 +146,8 @@ this.ScenarioSetup(scenarioInfo);
 #line 3
 this.FeatureBackground();
 #line 28
- testRunner.When("Powershell execute following script \'New-Item -name Test -ItemType Node\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.When("Powershell execute following script \'New-Item -name Test -ItemType Node -Value \"T" +
+                    "est\"\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
             TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
                         "Item"});
@@ -176,9 +177,9 @@ this.FeatureBackground();
             TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
                         "Item"});
             table5.AddRow(new string[] {
-                        "TestValue"});
+                        "True"});
 #line 36
- testRunner.Then("Executing script \'(Get-Item -Path Test).Data\' should return following items", ((string)(null)), table5, "Then ");
+ testRunner.Then("Executing script \'(Get-Item -Path Test) -ne $null\' should return following items", ((string)(null)), table5, "Then ");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -259,6 +260,87 @@ this.FeatureBackground();
 #line 56
  testRunner.Then("Executing script \'Get-Content SubTest -Encoding UTF8\' should return following ite" +
                     "ms", ((string)(null)), table8, "Then ");
+#line hidden
+            this.ScenarioCleanup();
+        }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Create new item in sub folder")]
+        public virtual void CreateNewItemInSubFolder()
+        {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create new item in sub folder", ((string[])(null)));
+#line 60
+this.ScenarioSetup(scenarioInfo);
+#line 3
+this.FeatureBackground();
+#line 61
+ testRunner.When("Powershell execute following script \'New-Item -name Test\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 62
+ testRunner.And("Powershell execute following script \'New-Item -name SubTest -Path .\\Test\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+            TechTalk.SpecFlow.Table table9 = new TechTalk.SpecFlow.Table(new string[] {
+                        "Item"});
+            table9.AddRow(new string[] {
+                        "SubTest"});
+#line 63
+ testRunner.Then("Executing script \'ls .\\Test\' should return following items", ((string)(null)), table9, "Then ");
+#line hidden
+            this.ScenarioCleanup();
+        }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Get-ChildItem with wild card")]
+        public virtual void Get_ChildItemWithWildCard()
+        {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get-ChildItem with wild card", ((string[])(null)));
+#line 68
+this.ScenarioSetup(scenarioInfo);
+#line 3
+this.FeatureBackground();
+#line 69
+ testRunner.When("Powershell execute following script \'New-Item -name Test\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+            TechTalk.SpecFlow.Table table10 = new TechTalk.SpecFlow.Table(new string[] {
+                        "Item"});
+            table10.AddRow(new string[] {
+                        "True"});
+#line 70
+ testRunner.Then("Executing script \'(ls Tes*) -ne $null\' should return following items", ((string)(null)), table10, "Then ");
+#line hidden
+            this.ScenarioCleanup();
+        }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Get-ChildItem -Recurse should retrun elements Recurse")]
+        public virtual void Get_ChildItem_RecurseShouldRetrunElementsRecurse()
+        {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get-ChildItem -Recurse should retrun elements Recurse", ((string[])(null)));
+#line 74
+this.ScenarioSetup(scenarioInfo);
+#line 3
+this.FeatureBackground();
+#line 75
+ testRunner.When("Powershell execute following script \'New-Item -name Test\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 76
+ testRunner.When("Powershell execute following script \'New-Item -name SubTest -Path .\\Test\\\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 77
+ testRunner.When("Powershell execute following script \'New-Item -name SubSubTest1 -Path .\\Test\\SubT" +
+                    "est\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 78
+ testRunner.When("Powershell execute following script \'New-Item -name SubSubTest2 -Path .\\Test\\SubT" +
+                    "est\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+            TechTalk.SpecFlow.Table table11 = new TechTalk.SpecFlow.Table(new string[] {
+                        "Item"});
+            table11.AddRow(new string[] {
+                        "SubTest"});
+            table11.AddRow(new string[] {
+                        "SubSubTest2"});
+            table11.AddRow(new string[] {
+                        "SubSubTest1"});
+#line 79
+ testRunner.Then("Executing script \'(Get-ChildItem -Recurse -Path Tes*) | Select -ExpandProperty Na" +
+                    "me\' should return following items", ((string)(null)), table11, "Then ");
 #line hidden
             this.ScenarioCleanup();
         }
