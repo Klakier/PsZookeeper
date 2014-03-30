@@ -25,6 +25,10 @@ namespace Zookeeper.PSProvider.Intergration.Tests.Hooks
 
         private void CleanZookeeper()
         {
+            if( this.context.ZookeeperClient == null )
+            {
+                return;
+            }
             var items = this.context.ZookeeperClient.GetChildren("/", false).Result.Where(s => s != "zookeeper").ToArray();
 
             foreach (var item in items)

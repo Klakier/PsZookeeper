@@ -30,12 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FastSocket.Client">
-      <HintPath>..\..\..\..\..\Repositories\PsZookeeper\lib\Zookeeper.Net\FastSocket.Client.dll</HintPath>
-    </Reference>
-    <Reference Include="FastSocket.SocketBase">
-      <HintPath>..\..\..\..\..\Repositories\PsZookeeper\lib\Zookeeper.Net\FastSocket.SocketBase.dll</HintPath>
-    </Reference>
     <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\log4net.1.2.11\lib\net40-full\log4net.dll</HintPath>
@@ -55,7 +49,13 @@
       <HintPath>..\packages\SpecFlow.1.9.0\lib\net35\TechTalk.SpecFlow.dll</HintPath>
     </Reference>
     <Reference Include="Zookeeper">
-      <HintPath>..\..\..\..\..\Repositories\PsZookeeper\lib\Zookeeper.Net\Zookeeper.dll</HintPath>
+      <HintPath>..\lib\Zookeeper.Net\Zookeeper.dll</HintPath>
+    </Reference>
+    <Reference Include="FastSocket.Client">
+      <HintPath>..\lib\Zookeeper.Net\FastSocket.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="FastSocket.SocketBase">
+      <HintPath>..\lib\Zookeeper.Net\FastSocket.SocketBase.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

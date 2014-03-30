@@ -37,11 +37,17 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="xunit">
-      <HintPath>..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
+    <Reference Include="Zookeeper">
+      <HintPath>..\lib\Zookeeper.Net\Zookeeper.dll</HintPath>
     </Reference>
-    <Reference Include="xunit.extensions">
-      <HintPath>..\packages\xunit.extensions.1.9.2\lib\net20\xunit.extensions.dll</HintPath>
+    <Reference Include="FastSocket.Client">
+      <HintPath>..\lib\Zookeeper.Net\FastSocket.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="FastSocket.SocketBase">
+      <HintPath>..\lib\Zookeeper.Net\FastSocket.SocketBase.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
