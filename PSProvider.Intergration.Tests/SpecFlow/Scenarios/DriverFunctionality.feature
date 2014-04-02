@@ -85,7 +85,7 @@ Scenario: Get-ChildItem -Recurse should retrun elements Recurse
 Scenario: Get-ChildItem -Recurse without path should retrun elements Recurse
 	When Powershell execute following script 'New-Item -name Test'
 	And Powershell execute following script 'New-Item -name SubTest -Path .\Test\'
-	Then Executing script '(Get-ChildItem -Recurse).Name' should return following items
+	Then Executing script 'Get-ChildItem -Recurse' should return following items
 	| Item      |
 	| /         |
 	| Test      |

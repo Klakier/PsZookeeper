@@ -8,6 +8,7 @@ namespace Zookeeper.PSProvider
         IEnumerable<string> GetChildren(string path);
         bool PathExist(string path);
         void CreateItem(string path, byte[] data, CreateMode createMode);
+        void Remove(string path, bool recurse);
         NodeInfo GetItem(string path);
         Stat GetStat(string path);
         GetDataResponse GetData(string path);

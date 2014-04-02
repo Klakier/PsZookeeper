@@ -33,6 +33,13 @@ namespace Zookeeper.PSProvider
             this.innerZookeeper.CreateItem(normalizedPath, data, createMode);
         }
 
+        public void Remove(string path, bool recurse)
+        {
+            var normalizedPath = ZookeeperPath.Normalize(path);
+
+            this.innerZookeeper.Remove(normalizedPath, recurse); 
+        }
+
         public NodeInfo GetItem(string path)
         {
             var normalizedPath = ZookeeperPath.Normalize(path);

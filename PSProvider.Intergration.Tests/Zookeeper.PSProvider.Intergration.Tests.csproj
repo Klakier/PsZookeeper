@@ -59,28 +59,32 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Given\SnapIn.cs" />
-    <Compile Include="Context.cs" />
-    <Compile Include="Given\Powershell.cs" />
-    <Compile Include="Given\Zookeeper.cs" />
-    <Compile Include="Hooks\Powershell.cs" />
-    <Compile Include="Hooks\SnapIn.cs" />
-    <Compile Include="Hooks\Zookeeper.cs" />
+    <Compile Include="SpecFlow\Given\SnapIn.cs" />
+    <Compile Include="SpecFlow\Context.cs" />
+    <Compile Include="SpecFlow\Given\Powershell.cs" />
+    <Compile Include="SpecFlow\Given\Zookeeper.cs" />
+    <Compile Include="SpecFlow\Hooks\Powershell.cs" />
+    <Compile Include="SpecFlow\Hooks\SnapIn.cs" />
+    <Compile Include="SpecFlow\Hooks\Zookeeper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Scenarios\DriverFunctionality.feature.cs">
+    <Compile Include="SpecFlow\Scenarios\DriverFunctionality.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>DriverFunctionality.feature</DependentUpon>
     </Compile>
-    <Compile Include="Scenarios\Installation.feature.cs">
+    <Compile Include="SpecFlow\Scenarios\Installation.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Installation.feature</DependentUpon>
     </Compile>
-    <Compile Include="Then\Powershell.cs" />
-    <Compile Include="Tranformations\ItemTransformation.cs" />
-    <Compile Include="Utils\InstallUtil.cs" />
-    <Compile Include="When\Powershell.cs" />
+    <Compile Include="SpecFlow\Then\Powershell.cs" />
+    <Compile Include="SpecFlow\Tranformations\ItemTransformation.cs" />
+    <Compile Include="SpecFlow\Utils\InstallUtil.cs" />
+    <Compile Include="SpecFlow\When\Powershell.cs" />
+    <Compile Include="Nunit\Remove-Item.cs" />
+    <Compile Include="Nunit\Helpers\ZookeeperHelpers.cs" />
+    <Compile Include="Nunit\Helpers\PowershellHelpers.cs" />
+    <Compile Include="Nunit\Get-ChildItem.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -89,7 +93,7 @@
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>DriverFunctionality.feature.cs</LastGenOutput>
     </None>
-    <None Include="Scenarios\Installation.feature">
+    <None Include="SpecFlow\SpecFlow\Scenarios\Installation.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Installation.feature.cs</LastGenOutput>
     </None>

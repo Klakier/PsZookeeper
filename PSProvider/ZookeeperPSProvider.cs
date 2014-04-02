@@ -10,7 +10,9 @@ using Zookeeper.PSProvider.Serializer;
 namespace Zookeeper.PSProvider
 {
     [CmdletProvider("Zookeeeper", ProviderCapabilities.ExpandWildcards)]
-    public class ZookeeperPsProvider : NavigationCmdletProvider, IContentCmdletProvider
+    public class ZookeeperPsProvider : 
+        NavigationCmdletProvider,
+        IContentCmdletProvider
     {
         protected override PSDriveInfo NewDrive(PSDriveInfo drive)
         {
@@ -51,6 +53,26 @@ namespace Zookeeper.PSProvider
             return new Configuration();
         }
 
+#region Container cmdltets
+
+        protected override void RemoveItem(string path, bool recurse)
+        {
+            var message = string.Format( 
+                                        "call: RemoveItem( path: {0}, recurse: {1} )",
+                                        path,
+                                        recurse );
+            this.WriteDebug( message );
+
+            if (!recurse && this.HasChildItems(path))
+            {
+                throw new InvalidOperationException("Can not remove node because is not empty");
+            }
+
+            this.ZookeeperDriver.Zookeeper.Remove(path, recurse);
+        }
+
+#endregion
+
         protected override bool IsValidPath(string path)
         {
             return ZookeeperPath.IsValid(path);
@@ -79,6 +101,14 @@ namespace Zookeeper.PSProvider
         {
             fullPath = ZookeeperPath.Normalize(fullPath);
             var name = ZookeeperPath.GetItemName(fullPath);
+            var item = new Item(name, fullPath);
+
+            this.WriteDebug(
+                    string.Format(
+                        "WriteItemObject(item: {0}, name: {1}, isContainer: {2})",
+                        item,
+                        fullPath,
+                        true ) );
             this.WriteItemObject(new Item(name, fullPath), fullPath, true);
         }
 
@@ -90,11 +120,12 @@ namespace Zookeeper.PSProvider
         protected override bool HasChildItems(string path)
         {
             var stat = this.ZookeeperDriver.Zookeeper.GetStat(path);
-            return stat.NumChildren != 0;
+            return stat != null && stat.NumChildren != 0;
         }
 
         protected override string GetChildName(string path)
         {
+            this.WriteDebug(string.Format("GetChildName( path: {0} )", path ) );
             var tokens = ZookeeperPath.Tokenize(path);
             if (!tokens.HasWildCard)
             {
@@ -103,11 +134,16 @@ namespace Zookeeper.PSProvider
 
             var regex = new Regex(tokens.WildCardPattern);
 
-            var result = this.ZookeeperDriver.Zookeeper.GetChildren(tokens.KnwonPath).FirstOrDefault(regex.IsMatch);
+            var result = this.ZookeeperDriver.Zookeeper.GetChildren(tokens.KnwonPath)
+                                                       .FirstOrDefault(regex.IsMatch);
             return result;
         }
 
-        protected override bool ConvertPath(string path, string filter, ref string updatedPath, ref string updatedFilter)
+        protected override bool ConvertPath(
+                string path,
+                string filter,
+                ref string updatedPath,
+                ref string updatedFilter)
         {
             Console.WriteLine("Convert fullPath");
             return base.ConvertPath(path, filter, ref updatedPath, ref updatedFilter);
@@ -139,7 +175,10 @@ namespace Zookeeper.PSProvider
             }
         }
 
-        protected override object NewItemDynamicParameters(string path, string itemTypeName, object newItemValue)
+        protected override object NewItemDynamicParameters(
+                string path,
+                string itemTypeName,
+                object newItemValue)
         {
             return new NewItemParamters();
         }
@@ -157,11 +196,14 @@ namespace Zookeeper.PSProvider
 
         protected override void GetChildItems(string path, bool recurse)
         {
+            this.WriteDebug( string.Format(
+                        "Method: GetChildItems( path: {0}, recurse: {1} )",
+                        path,
+                        recurse ));
             if (recurse)
             {
                 this.GetChildrenRecurse(path, this.WriteItem);
-            }
-            else
+            } else
             {
                 foreach (var children in this.ZookeeperDriver.Zookeeper.GetChildren(path))
                 {
@@ -269,6 +311,7 @@ namespace Zookeeper.PSProvider
         }
 
         public string Name { get; set; }
+
         public string FullName { get; set; }
     }
 }
