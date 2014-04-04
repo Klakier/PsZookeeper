@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" ?> 
+<Configuration>
+    <SelectionSets>
+        <SelectionSet>
+            <Name>ZookeeperTypes</Name>
+            <Types>
+                <TypeName>Zookeeper.PSProvider.ZookeeperItem</TypeName>
+            </Types>
+        </SelectionSet>
+    </SelectionSets>
+
+    <!-- ################ GLOBAL CONTROL DEFINITIONS ################ -->
+    <!--
+    <Controls>
+        <Control>
+            <Name>ZookeeperTypes-GroupingFormat</Name>
+                    <CustomControl>
+                        <CustomEntries>
+                            <CustomEntry>
+                                <CustomItem>
+                                    <Frame>
+                                        <LeftIndent>4</LeftIndent>
+                                        <CustomItem>
+                                            <Text AssemblyName="System.Management.Automation" BaseName="FileSystemProviderStrings" ResourceId="DirectoryDisplayGrouping"/>
+                                            <ExpressionBinding>
+                                              <ScriptBlock>
+                                                  $_.PSParentPath.Replace("Microsoft.PowerShell.Core\FileSystem::", "")                                                  
+                                              </ScriptBlock>
+                                            </ExpressionBinding>
+                                            <NewLine/>
+                                        </CustomItem> 
+                                    </Frame>
+                                </CustomItem>
+                            </CustomEntry>
+                        </CustomEntries>
+            </CustomControl>
+        </Control>
+    </Controls>
+    -->
+    
+    <!-- ################ VIEW DEFINITIONS ################ -->
+
+    <ViewDefinitions>
+       <View>
+            <Name>children</Name>
+            <ViewSelectedBy>
+                <TypeName>Zookeeper.PSProvider.ZookeeperItem</TypeName>
+            </ViewSelectedBy>
+            <TableControl>
+                <TableHeaders>
+                   <TableColumnHeader>
+                      <Label>Name</Label>
+                      <Width>30</Width>
+                      <Alignment>left</Alignment>
+                   </TableColumnHeader>
+                   <TableColumnHeader>
+                      <Label>Full name</Label>
+                      <Width>60</Width>
+                      <Alignment>left</Alignment>
+                   </TableColumnHeader>
+                </TableHeaders>
+                <TableRowEntries>
+                    <TableRowEntry>
+                        <Wrap/>
+                        <TableColumnItems>
+                            <TableColumnItem>
+                                <PropertyName>Name</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>FullName</PropertyName>
+                            </TableColumnItem>
+                        </TableColumnItems>
+                    </TableRowEntry>
+                </TableRowEntries>
+            </TableControl>
+        </View>
+       <View>
+            <Name>children</Name>
+            <ViewSelectedBy>
+                <TypeName>Zookeeper.PSProvider.NodeInfo</TypeName>
+            </ViewSelectedBy>
+            <TableControl>
+                <TableHeaders>
+                   <TableColumnHeader>
+                      <Label>Name</Label>
+                      <Width>30</Width>
+                      <Alignment>left</Alignment>
+                   </TableColumnHeader>
+                   <TableColumnHeader>
+                       <Label>Version</Label>
+                       <Width>10</Width>
+                       <Alignment>right</Alignment>
+                   </TableColumnHeader>
+                   <TableColumnHeader>
+                       <Label>Children count</Label>
+                       <Width>15</Width>
+                       <Alignment>right</Alignment>
+                   </TableColumnHeader>
+                   <TableColumnHeader>
+                       <Label>Data preview</Label>
+                       <Width>60</Width>
+                       <Alignment>right</Alignment>
+                   </TableColumnHeader>
+                </TableHeaders>
+                <TableRowEntries>
+                    <TableRowEntry>
+                        <Wrap/>
+                        <TableColumnItems>
+                            <TableColumnItem>
+                                <PropertyName>Name</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>Version</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>NumberOfChildren</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <ScriptBlock>
+                                    [System.Text.Encoding]::ASCII.GetString($_.Data)
+                                </ScriptBlock>
+                            </TableColumnItem>
+                        </TableColumnItems>
+                    </TableRowEntry>
+                </TableRowEntries>
+            </TableControl>
+        </View>
+    </ViewDefinitions>
+</Configuration>

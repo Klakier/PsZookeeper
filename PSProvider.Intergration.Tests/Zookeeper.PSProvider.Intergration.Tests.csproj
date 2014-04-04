@@ -85,6 +85,7 @@
     <Compile Include="Nunit\Helpers\ZookeeperHelpers.cs" />
     <Compile Include="Nunit\Helpers\PowershellHelpers.cs" />
     <Compile Include="Nunit\Get-ChildItem.cs" />
+    <Compile Include="Nunit\Get-Item.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

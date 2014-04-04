@@ -10,6 +10,8 @@ using Zookeeper.PSProvider.Serializer;
 namespace Zookeeper.PSProvider
 {
     [CmdletProvider("Zookeeeper", ProviderCapabilities.ExpandWildcards)]
+    [OutputType( new Type[] {typeof (NodeInfo)}, ProviderCmdlet = "Get-ChildItem")]
+    [OutputType( new Type[] {typeof (NodeInfo)}, ProviderCmdlet = "Get-Item")]
     public class ZookeeperPsProvider : 
         NavigationCmdletProvider,
         IContentCmdletProvider
@@ -80,9 +82,15 @@ namespace Zookeeper.PSProvider
 
         protected override void GetChildNames(string path, ReturnContainers returnContainers)
         {
+            this.WriteDebug( 
+                    string.Format("GetChildNames(path: {0}, returnContainers: {1})",
+                        path,
+                        returnContainers ) );
+
             foreach (var subItems in this.ZookeeperDriver.Zookeeper.GetChildren(path))
             {
-                this.WriteItem(ZookeeperPath.Join(path, subItems));
+                this.WriteItemObject(subItems, subItems, true );
+                //this.WriteItem(ZookeeperPath.Join(path, subItems));
             }
         }
 
@@ -94,14 +102,16 @@ namespace Zookeeper.PSProvider
                 return;
             }
 
-            this.WriteItem(path);
+            var item = this.ZookeeperDriver.Zookeeper.GetItem( path );
+
+            this.WriteItemObject( item, path, true );
         }
 
         private void WriteItem(string fullPath)
         {
             fullPath = ZookeeperPath.Normalize(fullPath);
             var name = ZookeeperPath.GetItemName(fullPath);
-            var item = new Item(name, fullPath);
+            var item = new ZookeeperItem(name, fullPath);
 
             this.WriteDebug(
                     string.Format(
@@ -109,7 +119,7 @@ namespace Zookeeper.PSProvider
                         item,
                         fullPath,
                         true ) );
-            this.WriteItemObject(new Item(name, fullPath), fullPath, true);
+            this.WriteItemObject(new ZookeeperItem(name, fullPath), fullPath, true);
         }
 
         protected override string[] ExpandPath(string path)
@@ -203,7 +213,8 @@ namespace Zookeeper.PSProvider
             if (recurse)
             {
                 this.GetChildrenRecurse(path, this.WriteItem);
-            } else
+            } 
+            else
             {
                 foreach (var children in this.ZookeeperDriver.Zookeeper.GetChildren(path))
                 {
@@ -296,22 +307,5 @@ namespace Zookeeper.PSProvider
         {
             return null;
         }
-    }
-
-    public class Item
-    {
-        public Item(string name, string fullName)
-        {
-            this.Name = name;
-            this.FullName = fullName;
-        }
-
-        public Item()
-        {
-        }
-
-        public string Name { get; set; }
-
-        public string FullName { get; set; }
     }
 }

@@ -1,10 +1,13 @@
-﻿using System;
+using System;
 
 namespace Zookeeper.PSProvider
 {
     public class NodeInfo
     {
         public string Name { get; set; }
+
+        public string FullName { get; set; }
+
         public int Version { get; set; }
 
         public int NumberOfChildren { get; set; }
@@ -13,7 +16,12 @@ namespace Zookeeper.PSProvider
 
         public override string ToString()
         {
-            return string.Format("Name: {0},Version: {1}, NumberOfChildren: {2}, Data: {3}", Name, Version, NumberOfChildren, Data);
+            return string.Format(
+                    "Name: {0},Version: {1}, NumberOfChildren: {2}, Data: {3}", 
+                    Name,
+                    Version,
+                    NumberOfChildren,
+                    Data);
         }
     }
 }
