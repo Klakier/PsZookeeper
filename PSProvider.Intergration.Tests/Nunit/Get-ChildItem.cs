@@ -25,6 +25,12 @@ namespace Zookeeper.PSProvider.Intergration.Tests.Nunit
             this.powershell.AddScript("cd Zookeeper:");
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            this.zookeeper.Dispose();
+        }
+
         [Test]
         public void Get_ChildItem_Recurse_should_return_items_recourse()
         {

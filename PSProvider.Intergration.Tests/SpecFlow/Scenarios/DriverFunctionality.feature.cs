@@ -339,7 +339,7 @@ this.FeatureBackground();
             table11.AddRow(new string[] {
                         "SubSubTest1"});
 #line 79
- testRunner.Then("Executing script \'Get-ChildItem -Recurse -Path Tes*\' should return following item" +
+ testRunner.Then("Executing script \'(Get-ChildItem -Recurse -Path Tes*).Name\' should return following item" +
                     "s", ((string)(null)), table11, "Then ");
 #line hidden
             this.ScenarioCleanup();

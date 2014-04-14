@@ -17,7 +17,11 @@ namespace Zookeeper.PSProvider.Intergration.Tests.Hooks
         [AfterScenario]
         public void AfterScenario()
         {
-            new ZookeeperHelpers().CleanZookeeper(); 
+            using( var zk = new ZookeeperHelpers() )
+            {
+                zk.CleanZookeeper();
+            }
+
             if (this.context.ZookeeperClient != null)
             {
                 this.context.ZookeeperClient.Stop();

@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace Zookeeper.PSProvider.Intergration.Tests.Nunit.Helpers
 {
-  public class ZookeeperHelpers
+  public class ZookeeperHelpers : IDisposable
   {
-      private IZookClient zookeeper;
+      private ZookClient zookeeper;
 
       public ZookeeperHelpers()
       {
@@ -42,6 +42,17 @@ namespace Zookeeper.PSProvider.Intergration.Tests.Nunit.Helpers
           }
 
           this.zookeeper.Delete(item, -1).Wait();
+      }
+
+      public void Dispose()
+      {
+          this.Dispose( true );
+          GC.SuppressFinalize(this);
+      }
+
+      protected virtual void Dispose( bool dispose )
+      {
+          this.zookeeper.Stop();
       }
   }
 }

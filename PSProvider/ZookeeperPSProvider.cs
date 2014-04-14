@@ -59,12 +59,6 @@ namespace Zookeeper.PSProvider
 
         protected override void RemoveItem(string path, bool recurse)
         {
-            var message = string.Format( 
-                                        "call: RemoveItem( path: {0}, recurse: {1} )",
-                                        path,
-                                        recurse );
-            this.WriteDebug( message );
-
             if (!recurse && this.HasChildItems(path))
             {
                 throw new InvalidOperationException("Can not remove node because is not empty");
@@ -77,21 +71,13 @@ namespace Zookeeper.PSProvider
 
         protected override bool IsValidPath(string path)
         {
-            this.WriteDebug( string.Format("IsValidPath( path: {0})", path ) );
-
             var result =  ZookeeperPath.IsValid(path);
-            this.WriteDebug( string.Format("IsValidPath : {0}", result ) ); 
 
             return result;
         }
 
         protected override void GetChildNames(string path, ReturnContainers returnContainers)
         {
-            this.WriteDebug( 
-                    string.Format("GetChildNames(path: {0}, returnContainers: {1})",
-                        path,
-                        returnContainers ) );
-
             foreach (var subItems in this.ZookeeperDriver.Zookeeper.GetChildren(path))
             {
                 this.WriteItemObject(subItems, path + ZookeeperPath.Separator + subItems, true );
@@ -100,18 +86,14 @@ namespace Zookeeper.PSProvider
 
         protected override void GetItem(string path)
         {
-            this.WriteDebug(string.Format("GetItem(path: {0})", path ) );
-
             var exit = this.ZookeeperDriver.Zookeeper.PathExist(path);
             if (!exit)
             {
-                this.WriteDebug( "GetItem : path not exist" );
                 return;
             }
 
             var item = this.ZookeeperDriver.Zookeeper.GetItem( path );
 
-            this.WriteDebug( string.Format( "WriteItemObject( path: {0} )", path ) );
             this.WriteItemObject( item, path, true );
         }
 
@@ -121,12 +103,6 @@ namespace Zookeeper.PSProvider
             var name = ZookeeperPath.GetItemName(fullPath);
             var item = new ZookeeperItem(name, fullPath);
 
-            this.WriteDebug(
-                    string.Format(
-                        "WriteItemObject(item: {0}, name: {1}, isContainer: {2})",
-                        item,
-                        fullPath,
-                        true ) );
             this.WriteItemObject(new ZookeeperItem(name, fullPath), fullPath, true);
         }
 
@@ -137,19 +113,14 @@ namespace Zookeeper.PSProvider
 
         protected override bool HasChildItems(string path)
         {
-            this.WriteDebug(string.Format("HasChildItems( path: {0})", path  ));
-
             var stat = this.ZookeeperDriver.Zookeeper.GetStat(path);
             var result = stat != null && stat.NumChildren != 0;
-            this.WriteDebug(  "HasChildItesm : " + result );
 
             return result;
         }
 
         protected override string GetChildName(string path)
         {
-            this.WriteDebug(string.Format("GetChildName( path: {0} )", path ) );
-
             path = path.Replace('/', '\\');
             path = path.TrimEnd( '\\' );
 
@@ -185,12 +156,6 @@ namespace Zookeeper.PSProvider
 
         protected override void NewItem(string path, string itemTypeName, object newItemValue)
         {
-            this.WriteDebug( 
-                string.Format( "NewItem(path: {0}, itemTypeName: {1}, newItemValue: {2})",
-                    path,
-                    itemTypeName,
-                    newItemValue ) );
-
             var parameters = (this.DynamicParameters as NewItemParamters) ?? new NewItemParamters();
             if (!string.IsNullOrWhiteSpace(itemTypeName))
             {
@@ -225,18 +190,12 @@ namespace Zookeeper.PSProvider
 
         protected override bool IsItemContainer(string path)
         {
-            this.WriteDebug(string.Format("IsItemContainer(path:{0})", path ));
-
             return this.ItemExists(path);
         }
 
         protected override string MakePath(string parent, string child)
         {
-            this.WriteDebug(string.Format("MakePath(parent:{0}, child: {1})", parent, child ));
-
             var result = base.MakePath(parent, child);
-
-            this.WriteDebug( string.Format( "MakePath : {0}", result ) );
 
             return result;
         }

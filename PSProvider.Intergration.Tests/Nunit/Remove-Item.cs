@@ -24,6 +24,12 @@ namespace Zookeeper.PSProvider.Intergration.Tests.Nunit
             this.powershell.AddScript("cd Zookeeper:");
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            this.zookeeper.Dispose();
+        }
+
         [Test]
         public void When_invoke_Remove_Item_item_should_be_removed()
         {
