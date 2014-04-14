@@ -9,8 +9,8 @@ using Zookeeper.PSProvider.Serializer;
 
 namespace Zookeeper.PSProvider
 {
-    [CmdletProvider("Zookeeeper", ProviderCapabilities.ExpandWildcards)]
-    [OutputType( new Type[] {typeof (NodeInfo)}, ProviderCmdlet = "Get-ChildItem")]
+    [CmdletProvider("Zookeeeper", ProviderCapabilities.Filter)]
+    [OutputType( new Type[] {typeof (ZookeeperItem)}, ProviderCmdlet = "Get-ChildItem")]
     [OutputType( new Type[] {typeof (NodeInfo)}, ProviderCmdlet = "Get-Item")]
     public class ZookeeperPsProvider : 
         NavigationCmdletProvider,
@@ -55,7 +55,7 @@ namespace Zookeeper.PSProvider
             return new Configuration();
         }
 
-#region Container cmdltets
+#region Container cmdltet/
 
         protected override void RemoveItem(string path, bool recurse)
         {
@@ -77,7 +77,12 @@ namespace Zookeeper.PSProvider
 
         protected override bool IsValidPath(string path)
         {
-            return ZookeeperPath.IsValid(path);
+            this.WriteDebug( string.Format("IsValidPath( path: {0})", path ) );
+
+            var result =  ZookeeperPath.IsValid(path);
+            this.WriteDebug( string.Format("IsValidPath : {0}", result ) ); 
+
+            return result;
         }
 
         protected override void GetChildNames(string path, ReturnContainers returnContainers)
@@ -89,21 +94,24 @@ namespace Zookeeper.PSProvider
 
             foreach (var subItems in this.ZookeeperDriver.Zookeeper.GetChildren(path))
             {
-                this.WriteItemObject(subItems, subItems, true );
-                //this.WriteItem(ZookeeperPath.Join(path, subItems));
+                this.WriteItemObject(subItems, path + ZookeeperPath.Separator + subItems, true );
             }
         }
 
         protected override void GetItem(string path)
         {
+            this.WriteDebug(string.Format("GetItem(path: {0})", path ) );
+
             var exit = this.ZookeeperDriver.Zookeeper.PathExist(path);
             if (!exit)
             {
+                this.WriteDebug( "GetItem : path not exist" );
                 return;
             }
 
             var item = this.ZookeeperDriver.Zookeeper.GetItem( path );
 
+            this.WriteDebug( string.Format( "WriteItemObject( path: {0} )", path ) );
             this.WriteItemObject( item, path, true );
         }
 
@@ -129,24 +137,41 @@ namespace Zookeeper.PSProvider
 
         protected override bool HasChildItems(string path)
         {
+            this.WriteDebug(string.Format("HasChildItems( path: {0})", path  ));
+
             var stat = this.ZookeeperDriver.Zookeeper.GetStat(path);
-            return stat != null && stat.NumChildren != 0;
+            var result = stat != null && stat.NumChildren != 0;
+            this.WriteDebug(  "HasChildItesm : " + result );
+
+            return result;
         }
 
         protected override string GetChildName(string path)
         {
             this.WriteDebug(string.Format("GetChildName( path: {0} )", path ) );
-            var tokens = ZookeeperPath.Tokenize(path);
-            if (!tokens.HasWildCard)
+
+            path = path.Replace('/', '\\');
+            path = path.TrimEnd( '\\' );
+
+            int num = path.LastIndexOf('\\');
+            if( num == -1 )
             {
-                return base.GetChildName(path);
+                return this.EnsureDriveIsRooted(path);
             }
 
-            var regex = new Regex(tokens.WildCardPattern);
+            return path.Substring(num + 1);
 
-            var result = this.ZookeeperDriver.Zookeeper.GetChildren(tokens.KnwonPath)
-                                                       .FirstOrDefault(regex.IsMatch);
-            return result;
+        }
+
+        private string EnsureDriveIsRooted( string path )
+        {
+            int num = path.IndexOf(':');
+            if (num != -1 && num + 1 == path.Length)
+            {
+                path += '\\';
+            }
+
+            return path;
         }
 
         protected override bool ConvertPath(
@@ -155,12 +180,17 @@ namespace Zookeeper.PSProvider
                 ref string updatedPath,
                 ref string updatedFilter)
         {
-            Console.WriteLine("Convert fullPath");
-            return base.ConvertPath(path, filter, ref updatedPath, ref updatedFilter);
+            return false;
         }
 
         protected override void NewItem(string path, string itemTypeName, object newItemValue)
         {
+            this.WriteDebug( 
+                string.Format( "NewItem(path: {0}, itemTypeName: {1}, newItemValue: {2})",
+                    path,
+                    itemTypeName,
+                    newItemValue ) );
+
             var parameters = (this.DynamicParameters as NewItemParamters) ?? new NewItemParamters();
             if (!string.IsNullOrWhiteSpace(itemTypeName))
             {
@@ -195,21 +225,24 @@ namespace Zookeeper.PSProvider
 
         protected override bool IsItemContainer(string path)
         {
+            this.WriteDebug(string.Format("IsItemContainer(path:{0})", path ));
+
             return this.ItemExists(path);
         }
 
         protected override string MakePath(string parent, string child)
         {
+            this.WriteDebug(string.Format("MakePath(parent:{0}, child: {1})", parent, child ));
+
             var result = base.MakePath(parent, child);
+
+            this.WriteDebug( string.Format( "MakePath : {0}", result ) );
+
             return result;
         }
 
         protected override void GetChildItems(string path, bool recurse)
         {
-            this.WriteDebug( string.Format(
-                        "Method: GetChildItems( path: {0}, recurse: {1} )",
-                        path,
-                        recurse ));
             if (recurse)
             {
                 this.GetChildrenRecurse(path, this.WriteItem);
@@ -236,13 +269,14 @@ namespace Zookeeper.PSProvider
 
         protected override Collection<PSDriveInfo> InitializeDefaultDrives()
         {
-            Console.WriteLine("Intialize default drivers");
             return base.InitializeDefaultDrives();
         }
 
         protected override bool ItemExists(string path)
         {
-            return this.ZookeeperDriver.Zookeeper.PathExist(path);
+            var result = this.ZookeeperDriver.Zookeeper.PathExist(path);
+
+            return result;
         }
 
         public ZookeeperPsDriverInfo ZookeeperDriver
@@ -252,7 +286,8 @@ namespace Zookeeper.PSProvider
 
         public IContentReader GetContentReader(string path)
         {
-            var parametes = (this.DynamicParameters as GetContentDynamicParameters) ?? new GetContentDynamicParameters();
+            var parametes = (this.DynamicParameters as GetContentDynamicParameters) 
+                            ?? new GetContentDynamicParameters();
             var data = this.ZookeeperDriver.Zookeeper.GetData(path);
             var contentReader = this.GetReader(parametes.Encoding, data.Data);
             return contentReader;
