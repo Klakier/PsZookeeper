@@ -1,7 +1,6 @@
 using System;
 using NUnit.Framework;
 using Zookeeper.PSProvider.Intergration.Tests.Nunit.Helpers;
-using Zookeeper.PSProvider.Intergration.Tests.Utils;
 
 namespace Zookeeper.PSProvider.Intergration.Tests.Nunit
 {

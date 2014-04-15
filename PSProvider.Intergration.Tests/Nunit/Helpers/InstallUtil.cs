@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using NUnit.Framework;
 
-namespace Zookeeper.PSProvider.Intergration.Tests.Utils
+namespace Zookeeper.PSProvider.Intergration.Tests.Nunit.Helpers
 {
     public static class InstallUtil
     {

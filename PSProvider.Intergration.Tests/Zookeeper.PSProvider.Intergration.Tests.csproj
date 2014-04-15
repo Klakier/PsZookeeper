@@ -59,45 +59,22 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SpecFlow\Given\SnapIn.cs" />
-    <Compile Include="SpecFlow\Context.cs" />
-    <Compile Include="SpecFlow\Given\Powershell.cs" />
-    <Compile Include="SpecFlow\Given\Zookeeper.cs" />
-    <Compile Include="SpecFlow\Hooks\Powershell.cs" />
-    <Compile Include="SpecFlow\Hooks\SnapIn.cs" />
-    <Compile Include="SpecFlow\Hooks\Zookeeper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SpecFlow\Scenarios\DriverFunctionality.feature.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>DriverFunctionality.feature</DependentUpon>
-    </Compile>
-    <Compile Include="SpecFlow\Scenarios\Installation.feature.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Installation.feature</DependentUpon>
-    </Compile>
-    <Compile Include="SpecFlow\Then\Powershell.cs" />
-    <Compile Include="SpecFlow\Tranformations\ItemTransformation.cs" />
-    <Compile Include="SpecFlow\Utils\InstallUtil.cs" />
-    <Compile Include="SpecFlow\When\Powershell.cs" />
     <Compile Include="Nunit\Remove-Item.cs" />
     <Compile Include="Nunit\Helpers\ZookeeperHelpers.cs" />
     <Compile Include="Nunit\Helpers\PowershellHelpers.cs" />
     <Compile Include="Nunit\Get-ChildItem.cs" />
     <Compile Include="Nunit\Get-Item.cs" />
+    <Compile Include="Nunit\CmdletTestBase.cs" />
+    <Compile Include="Nunit\Set-Location.cs" />
+    <Compile Include="Nunit\New-Item.cs" />
+    <Compile Include="Nunit\Get-Content.cs" />
+    <Compile Include="Nunit\Set-Content.cs" />
+    <Compile Include="Nunit\Helpers\InstallUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="Scenarios\DriverFunctionality.feature">
-      <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>DriverFunctionality.feature.cs</LastGenOutput>
-    </None>
-    <None Include="SpecFlow\SpecFlow\Scenarios\Installation.feature">
-      <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>Installation.feature.cs</LastGenOutput>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PSProvider\Zookeeper.PSProvider.csproj">

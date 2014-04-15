@@ -2,7 +2,6 @@ using System;
 using NUnit.Framework;
 using System.Linq;
 using Zookeeper.PSProvider.Intergration.Tests.Nunit.Helpers;
-using Zookeeper.PSProvider.Intergration.Tests.Utils;
 
 namespace Zookeeper.PSProvider.Intergration.Tests.Nunit
 {
@@ -29,6 +28,17 @@ namespace Zookeeper.PSProvider.Intergration.Tests.Nunit
         public void TearDown()
         {
             this.zookeeper.Dispose();
+        }
+
+        [Test]
+        public void Get_Item_should_return_appropiate_item()
+        {
+            this.powershell.AddScript("New-Item -name Test -ItemType Node -Value TestValue");
+            this.powershell.AddScript("(Get-Item -Path Test) -ne $null");
+
+            var result = this.powershell.Execute<bool>().First();
+
+            Assert.IsTrue( result );
         }
 
         [Test]
