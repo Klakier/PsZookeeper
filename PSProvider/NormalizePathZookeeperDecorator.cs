@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Sodao.Zookeeper.Data;
+using Zookeeper.PSProvider.Paths;
 
 namespace Zookeeper.PSProvider
 {
@@ -40,7 +41,7 @@ namespace Zookeeper.PSProvider
             this.innerZookeeper.Remove(normalizedPath, recurse); 
         }
 
-        public NodeInfo GetItem(string path)
+        public GetDataResponse GetItem(string path)
         {
             var normalizedPath = ZookeeperPath.Normalize(path);
             return this.innerZookeeper.GetItem(normalizedPath);
@@ -49,11 +50,6 @@ namespace Zookeeper.PSProvider
         public Stat GetStat(string path)
         {
             return this.innerZookeeper.GetStat(ZookeeperPath.Normalize(path));
-        }
-
-        public GetDataResponse GetData(string path)
-        {
-            return this.innerZookeeper.GetData(ZookeeperPath.Normalize(path));
         }
 
         public void SetData(string path, byte[] data, int version)

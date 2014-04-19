@@ -9,9 +9,8 @@ namespace Zookeeper.PSProvider
         bool PathExist(string path);
         void CreateItem(string path, byte[] data, CreateMode createMode);
         void Remove(string path, bool recurse);
-        NodeInfo GetItem(string path);
+        GetDataResponse GetItem(string path);
         Stat GetStat(string path);
-        GetDataResponse GetData(string path);
         void SetData(string path, byte[] data, int version);
     }
 }

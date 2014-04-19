@@ -1,4 +1,4 @@
-namespace Zookeeper.PSProvider
+namespace Zookeeper.PSProvider.Paths
 {
     public class ZookeeperPathTokens
     {

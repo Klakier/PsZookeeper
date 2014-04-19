@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Zookeeper.PSProvider
+namespace Zookeeper.PSProvider.Paths
 {
     public class ZookeeperPath
     {

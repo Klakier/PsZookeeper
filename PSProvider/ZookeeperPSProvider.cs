@@ -6,12 +6,14 @@ using System.Management.Automation;
 using System.Management.Automation.Provider;
 using System.Text.RegularExpressions;
 using Zookeeper.PSProvider.Serializer;
+using Zookeeper.PSProvider.Paths;
+using Zookeeper.PSProvider.ItemsRepresntation;
 
 namespace Zookeeper.PSProvider
 {
     [CmdletProvider("Zookeeeper", ProviderCapabilities.Filter)]
-    [OutputType( new Type[] {typeof (ZookeeperItem)}, ProviderCmdlet = "Get-ChildItem")]
-    [OutputType( new Type[] {typeof (NodeInfo)}, ProviderCmdlet = "Get-Item")]
+    [OutputType( new Type[] {typeof(NodeInfo)}, ProviderCmdlet = "Get-Item")]
+    [OutputType( new Type[] {typeof(ShortNodeRepresentation)}, ProviderCmdlet = "Get-Items")]
     public class ZookeeperPsProvider : 
         NavigationCmdletProvider,
         IContentCmdletProvider
@@ -55,7 +57,7 @@ namespace Zookeeper.PSProvider
             return new Configuration();
         }
 
-#region Container cmdltet/
+#region Container cmdltet
 
         protected override void RemoveItem(string path, bool recurse)
         {
@@ -71,7 +73,7 @@ namespace Zookeeper.PSProvider
 
         protected override bool IsValidPath(string path)
         {
-            var result =  ZookeeperPath.IsValid(path);
+            var result = ZookeeperPath.IsValid(path);
 
             return result;
         }
@@ -80,7 +82,7 @@ namespace Zookeeper.PSProvider
         {
             foreach (var subItems in this.ZookeeperDriver.Zookeeper.GetChildren(path))
             {
-                this.WriteItemObject(subItems, path + ZookeeperPath.Separator + subItems, true );
+                this.WriteItemObject(subItems, path + PsPath.Separator + subItems, true);
             }
         }
 
@@ -92,23 +94,21 @@ namespace Zookeeper.PSProvider
                 return;
             }
 
-            var item = this.ZookeeperDriver.Zookeeper.GetItem( path );
+            var data = this.ZookeeperDriver.Zookeeper.GetItem(path);
+            var item = new LongNodeRepresentation(data, this.ZookeeperDriver, path); 
 
-            this.WriteItemObject( item, path, true );
+            this.WriteItemObject(item, path, true);
         }
 
-        private void WriteItem(string fullPath)
+        private void WriteShortNode(string fullPath)
         {
-            fullPath = ZookeeperPath.Normalize(fullPath);
             var name = ZookeeperPath.GetItemName(fullPath);
-            var item = new ZookeeperItem(name, fullPath);
 
-            this.WriteItemObject(new ZookeeperItem(name, fullPath), fullPath, true);
-        }
+            var item = new ShortNodeRepresentation(
+                    name,
+                    PsPath.FromZookeeperPath(this.ZookeeperDriver, fullPath));
 
-        protected override string[] ExpandPath(string path)
-        {
-            throw new NotSupportedException("ExpandPath");
+            this.WriteItemObject(item, fullPath, true);
         }
 
         protected override bool HasChildItems(string path)
@@ -122,10 +122,10 @@ namespace Zookeeper.PSProvider
         protected override string GetChildName(string path)
         {
             path = path.Replace('/', '\\');
-            path = path.TrimEnd( '\\' );
+            path = path.TrimEnd('\\');
 
             int num = path.LastIndexOf('\\');
-            if( num == -1 )
+            if (num == -1)
             {
                 return this.EnsureDriveIsRooted(path);
             }
@@ -134,7 +134,7 @@ namespace Zookeeper.PSProvider
 
         }
 
-        private string EnsureDriveIsRooted( string path )
+        private string EnsureDriveIsRooted(string path)
         {
             int num = path.IndexOf(':');
             if (num != -1 && num + 1 == path.Length)
@@ -204,13 +204,12 @@ namespace Zookeeper.PSProvider
         {
             if (recurse)
             {
-                this.GetChildrenRecurse(path, this.WriteItem);
-            } 
-            else
+                this.GetChildrenRecurse(path, this.WriteShortNode);
+            } else
             {
                 foreach (var children in this.ZookeeperDriver.Zookeeper.GetChildren(path))
                 {
-                    this.WriteItem(ZookeeperPath.Join(path, children));
+                    this.WriteShortNode(PsPath.Join(path, children));
                 }
             }
         }
@@ -246,8 +245,8 @@ namespace Zookeeper.PSProvider
         public IContentReader GetContentReader(string path)
         {
             var parametes = (this.DynamicParameters as GetContentDynamicParameters) 
-                            ?? new GetContentDynamicParameters();
-            var data = this.ZookeeperDriver.Zookeeper.GetData(path);
+                ?? new GetContentDynamicParameters();
+            var data = this.ZookeeperDriver.Zookeeper.GetItem(path);
             var contentReader = this.GetReader(parametes.Encoding, data.Data);
             return contentReader;
         }

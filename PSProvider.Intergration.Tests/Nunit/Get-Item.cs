@@ -6,30 +6,8 @@ using Zookeeper.PSProvider.Intergration.Tests.Nunit.Helpers;
 namespace Zookeeper.PSProvider.Intergration.Tests.Nunit
 {
     [TestFixture(Category="Integration_tests")]
-    public class GetItem
+    public class GetItem : CmdletTestsBase
     {
-        PowershellHelpers powershell;
-        ZookeeperHelpers zookeeper;
-
-        [SetUp]
-        public void SetUp()
-        {
-            InstallUtil.Install("Zookeeper.PSProvider");
-            this.zookeeper = new ZookeeperHelpers();
-            this.zookeeper.CleanZookeeper();
-
-            this.powershell = new PowershellHelpers();
-            this.powershell.AddScript("Add-PSSnapin ZookeeperPSSnap");
-            this.powershell.AddScript("New-PSDrive -Name Zookeeper -PSProvider Zookeeeper -Root /");
-            this.powershell.AddScript("cd Zookeeper:");
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            this.zookeeper.Dispose();
-        }
-
         [Test]
         public void Get_Item_should_return_appropiate_item()
         {
@@ -59,6 +37,17 @@ namespace Zookeeper.PSProvider.Intergration.Tests.Nunit
             Assert.Contains("Version", result);
             Assert.Contains("NumberOfChildren", result);
             Assert.Contains("Data", result);
+        }
+
+        [Test]
+        public void Get_Item_should_return_item_where_FullName_is_equal_to_rooted_full_path()
+        {
+            this.powershell.AddScript("new-item -Name SubItem");
+            this.powershell.AddScript(@"(Get-Item .\SubItem).FullName");
+
+            var result = this.powershell.Execute<string>().First();
+
+            Assert.AreEqual(@"Zookeeper:\SubItem", result);
         }
     }
 }

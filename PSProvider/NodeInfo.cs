@@ -6,8 +6,6 @@ namespace Zookeeper.PSProvider
     {
         public string Name { get; set; }
 
-        public string FullName { get; set; }
-
         public int Version { get; set; }
 
         public int NumberOfChildren { get; set; }
@@ -17,11 +15,11 @@ namespace Zookeeper.PSProvider
         public override string ToString()
         {
             return string.Format(
-                    "Name: {0},Version: {1}, NumberOfChildren: {2}, Data: {3}", 
-                    Name,
-                    Version,
-                    NumberOfChildren,
-                    Data);
+                    "Name: {0}, Version: {2}, NumberOfChildren: {3}, Data: {4}", 
+                    this.Name,
+                    this.Version,
+                    this.NumberOfChildren,
+                    this.Data);
         }
     }
 }

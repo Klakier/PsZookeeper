@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Sodao.Zookeeper;
 using Sodao.Zookeeper.Data;
+using Zookeeper.PSProvider.Paths;
 
 namespace Zookeeper.PSProvider
 {
@@ -57,27 +58,14 @@ namespace Zookeeper.PSProvider
             this.client.Delete(item, -1).Wait();
         }
 
-        public NodeInfo GetItem(string path)
+        public GetDataResponse GetItem(string path)
         {
-            var data = this.GetData(path);
-
-            return new NodeInfo
-            {
-                Name = ZookeeperPath.GetItemName(path),
-                Data = data.Data,
-                NumberOfChildren = data.Stat.NumChildren,
-                Version = data.Stat.Version
-            };
+            return this.client.GetData(path, false).Result;
         }
 
         public Stat GetStat(string path)
         {
             return this.client.Exists(path, false).Result;
-        }
-
-        public GetDataResponse GetData(string path)
-        {
-            return this.client.GetData(path, false).Result;
         }
 
         public void SetData(string path, byte[] data, int version)

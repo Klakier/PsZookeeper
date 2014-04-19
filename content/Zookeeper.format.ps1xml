@@ -4,7 +4,7 @@
        <View>
             <Name>children</Name>
             <ViewSelectedBy>
-                <TypeName>Zookeeper.PSProvider.ZookeeperItem</TypeName>
+                <TypeName>Zookeeper.PSProvider.ItemsRepresntation.ShortNodeRepresentation</TypeName>
             </ViewSelectedBy>
             <TableControl>
                 <TableHeaders>

@@ -67,10 +67,8 @@
     <Compile Include="Serializer\Utf8Serializer.cs" />
     <Compile Include="Serializer\ZookeeperContentWriter.cs" />
     <Compile Include="SetContentWriterDynamicParameters.cs" />
-    <Compile Include="ZookeeperPathTokens.cs" />
     <Compile Include="Zookeeper.cs" />
     <Compile Include="ZookeeperFactory.cs" />
-    <Compile Include="ZookeeperPath.cs" />
     <Compile Include="Utf8ContentWriter.cs" />
     <Compile Include="ZookeeperConnectionFactory.cs" />
     <Compile Include="RawContentReader.cs" />
@@ -80,7 +78,11 @@
     <Compile Include="ZookeeperSnapIn.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="ZookeeperItem.cs" />
+    <Compile Include="Paths\PsPath.cs" />
+    <Compile Include="Paths\ZookeeperPath.cs" />
+    <Compile Include="Paths\ZookeeperPathTokens.cs" />
+    <Compile Include="ItemsRepresntation\ShortNodeRepresentation.cs" />
+    <Compile Include="ItemsRepresntation\LongNodeRepresentation.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

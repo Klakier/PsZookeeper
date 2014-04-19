@@ -30,7 +30,6 @@ namespace Zookeeper.PSProvider.Intergration.Tests.Nunit.Helpers
                 UseShellExecute = false,
             };
 
-
             var process = Process.Start(processInfo);
 
             Assert.NotNull(process);
