@@ -80,9 +80,9 @@ namespace Zookeeper.PSProvider
 
         protected override void GetChildNames(string path, ReturnContainers returnContainers)
         {
-            foreach (var subItems in this.ZookeeperDriver.Zookeeper.GetChildren(path))
+            foreach (var subItem in this.ZookeeperDriver.Zookeeper.GetChildren(path))
             {
-                this.WriteItemObject(subItems, path + PsPath.Separator + subItems, true);
+                this.WriteNodeName( path, subItem );
             }
         }
 
@@ -94,21 +94,7 @@ namespace Zookeeper.PSProvider
                 return;
             }
 
-            var data = this.ZookeeperDriver.Zookeeper.GetItem(path);
-            var item = new LongNodeRepresentation(data, this.ZookeeperDriver, path); 
-
-            this.WriteItemObject(item, path, true);
-        }
-
-        private void WriteShortNode(string fullPath)
-        {
-            var name = ZookeeperPath.GetItemName(fullPath);
-
-            var item = new ShortNodeRepresentation(
-                    name,
-                    PsPath.FromZookeeperPath(this.ZookeeperDriver, fullPath));
-
-            this.WriteItemObject(item, fullPath, true);
+            this.WriteLongNode( path );
         }
 
         protected override bool HasChildItems(string path)
@@ -216,11 +202,10 @@ namespace Zookeeper.PSProvider
 
         private void GetChildrenRecurse(string path, Action<string> itemAction)
         {
-            var normalizePath = ZookeeperPath.Normalize(path);
-            itemAction(normalizePath);
+            itemAction(path);
             foreach (var item in this.ZookeeperDriver.Zookeeper.GetChildren(path))
             {
-                var fullPath = ZookeeperPath.Join(normalizePath, item);
+                var fullPath = PsPath.Join(path, item);
                 this.GetChildrenRecurse(fullPath, itemAction);
             }
         }
@@ -299,6 +284,32 @@ namespace Zookeeper.PSProvider
         public object ClearContentDynamicParameters(string path)
         {
             return null;
+        }
+
+        private void WriteNodeName( string path, string subItem )
+        {
+            var fullPath = PsPath.Join( path, subItem );
+            var rootedPath = PsPath.FromZookeeperPath( this.ZookeeperDriver, fullPath);
+            this.WriteItemObject(subItem, rootedPath, true);
+        }
+
+        private void WriteLongNode( string fullPath )
+        {
+            var data = this.ZookeeperDriver.Zookeeper.GetItem(fullPath);
+            var item = new LongNodeRepresentation(data, this.ZookeeperDriver, fullPath); 
+
+            this.WriteItemObject(item, item.FullName, true);
+        }
+
+        private void WriteShortNode(string fullPath)
+        {
+            var name = ZookeeperPath.GetItemName(fullPath);
+
+            var item = new ShortNodeRepresentation(
+                    name,
+                    PsPath.FromZookeeperPath(this.ZookeeperDriver, fullPath));
+
+            this.WriteItemObject(item, item.FullName, true);
         }
     }
 }

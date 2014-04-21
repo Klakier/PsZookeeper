@@ -11,26 +11,26 @@ namespace Zookeeper.PSProvider.Intergration.Tests.Nunit
         [Test]
         public void GetChildItem_should_return_all_items_in_path()
         {
-            this.powershell.AddScript( "(Get-ChildItem).Name" );
+            this.powershell.AddScript("(Get-ChildItem).Name");
 
             var result = this.powershell.Execute<string>().ToArray();
 
-            Assert.AreEqual( new[] { "zookeeper" }, result );
+            Assert.AreEqual(new[] { "zookeeper" }, result);
         }
 
         [Test]
         public void Get_ChildItem_Recurse_should_return_items_recurse()
         {
-            this.powershell.AddScript( "New-Item -name TestItem" );
-            this.powershell.AddScript( @"New-Item -name SubItem -Path .\TestItem" );
+            this.powershell.AddScript("New-Item -name TestItem");
+            this.powershell.AddScript(@"New-Item -name SubItem -Path .\TestItem");
 
             this.powershell.AddScript("(Get-ChildItem -Recurse).Name");
             var result = this.powershell.Execute().ToList();
 
-            Assert.IsNotEmpty( result );
+            Assert.IsNotEmpty(result);
 
-            Assert.Contains("TestItem", result );
-            Assert.Contains("SubItem", result );
+            Assert.Contains("TestItem", result);
+            Assert.Contains("SubItem", result);
         }
 
         [Test]
@@ -47,7 +47,12 @@ namespace Zookeeper.PSProvider.Intergration.Tests.Nunit
         [Test]
         public void Get_ChildItem_should_return_elements_recurse_if_Recurse_flag_is_passed()
         {
-            var expectedValue = new [] { "SubTest", "SubSubTest2", "SubSubTest1" };
+            var expectedValue = new []
+            {
+                "SubTest",
+                "SubSubTest2",
+                "SubSubTest1"
+            };
 
             this.powershell.AddScript("New-Item -name Test");
             this.powershell.AddScript(@"New-Item -name SubTest -Path .\Test\");
@@ -57,13 +62,20 @@ namespace Zookeeper.PSProvider.Intergration.Tests.Nunit
 
             var result = this.powershell.Execute<string>().ToArray();
 
-            CollectionAssert.AreEquivalent( expectedValue, result );
+            CollectionAssert.AreEquivalent(expectedValue, result);
         }
 
         [Test]
         public void Get_ChildItem_with_flag_Recurse_without_path_should_retrun_elements_Recurse()
         {
-            var expectedValues = new [] { "/" ,"Test" ,"SubTest" ,"zookeeper" ,"quota"};
+            var expectedValues = new []
+            {
+                "/" ,
+                "Test" ,
+                "SubTest" ,
+                "zookeeper" ,
+                "quota"
+            };
 
             this.powershell.AddScript(@"New-Item -name Test");
             this.powershell.AddScript(@"New-Item -name SubTest -Path .\Test\");
@@ -73,6 +85,17 @@ namespace Zookeeper.PSProvider.Intergration.Tests.Nunit
 
             CollectionAssert.AreEquivalent(expectedValues, result);
 
+        }
+
+        [Test]
+        public void Get_ChildItem_should_set_PsPath_to_rooted_full_path()
+        {
+            this.powershell.AddScript(@"New-Item -name Test");
+            this.powershell.AddScript(@"(Get-ChildItem Tes*).PsPath");
+
+            var result = this.powershell.Execute<string>().First();
+
+            Assert.IsTrue(result.EndsWith(@"Zookeeper:\Test"));
         }
     }
 }

@@ -16,7 +16,7 @@ namespace Zookeeper.PSProvider.Intergration.Tests.Nunit
 
             var result = this.powershell.Execute<bool>().First();
 
-            Assert.IsTrue( result );
+            Assert.IsTrue(result);
         }
 
         [Test]
@@ -48,6 +48,19 @@ namespace Zookeeper.PSProvider.Intergration.Tests.Nunit
             var result = this.powershell.Execute<string>().First();
 
             Assert.AreEqual(@"Zookeeper:\SubItem", result);
+        }
+
+        [Test]
+        public void Get_Item_should_return_item_where_PsPath_ends_with_to_rooted_full_path()
+        {
+            this.powershell.AddScript("new-item -Name SubItem");
+            this.powershell.AddScript(@"(Get-Item .\SubItem).PsPath");
+
+            var result = this.powershell.Execute<string>().First();
+
+            Console.WriteLine("Result: {0}", result );
+
+            Assert.IsTrue(result.EndsWith(@"Zookeeper:\SubItem"));
         }
     }
 }
