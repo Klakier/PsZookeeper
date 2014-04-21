@@ -31,5 +31,16 @@ namespace Zookeeper.PSProvider.Intergration.Tests.Nunit
 
             Assert.AreEqual("SubTestValue", result );
         }
+
+        [Test]
+        public void GetContent_should_not_generate_any_errors_even_when_content_is_empty()
+        {
+            this.powershell.AddScript("New-Item -name Test");
+
+            this.powershell.AddScript("Get-content Test");
+            this.powershell.Execute();
+
+            Assert.IsFalse( this.powershell.HadErrors );
+        }
     }
 }

@@ -29,6 +29,11 @@ namespace Zookeeper.PSProvider.Intergration.Tests.Nunit.Helpers
             return this.Execute<PSObject>();
         }
 
+        public bool HadErrors
+        {
+            get { return this.powershell.HadErrors; }
+        }
+
         public IEnumerable<T> Execute<T>()
         {
             try

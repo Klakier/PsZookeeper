@@ -7,12 +7,12 @@ namespace Zookeeper.PSProvider.Serializer
 {
     public class Utf8ContentReader : IContentReader
     {
-        private readonly byte[] _data;
+        private readonly byte[] data;
         private bool _wasRead;
 
         public Utf8ContentReader(byte[] data)
         {
-            this._data = data;
+            this.data = data;
         }
 
         public void Dispose()
@@ -26,9 +26,14 @@ namespace Zookeeper.PSProvider.Serializer
                 return new ArrayList();
             }
 
-            var value = Encoding.UTF8.GetString(this._data);
-
             this._wasRead = true;
+
+            if( this.data == null || this.data.Length == 0 )
+            {
+                return new ArrayList() { string.Empty };
+            }
+
+            var value = Encoding.UTF8.GetString(this.data);
 
             return new ArrayList() { value };
         }
