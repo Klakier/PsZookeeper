@@ -1,21 +1,48 @@
 <?xml version="1.0" encoding="utf-8" ?> 
 <Configuration>
+    <Controls>
+        <Control>
+            <Name>ItemGrouping</Name>
+                    <CustomControl>
+                        <CustomEntries>
+                            <CustomEntry>
+                                <CustomItem>
+                                    <Frame>
+                                        <LeftIndent>4</LeftIndent>
+                                        <CustomItem>
+                                            <Text>Folder: </Text>
+                                            <ExpressionBinding>
+                                                <ScriptBlock>
+                                                    $location = $_.PSParentPath.Replace("ZookeeperPSSnap\Zookeeeper::", "" )
+                                                    if( $location -eq "" )
+                                                    {
+                                                        return "root"
+                                                    }
+                                                    return $location
+                                                </ScriptBlock>
+                                            </ExpressionBinding>
+                                        </CustomItem> 
+                                    </Frame>
+                                </CustomItem>
+                            </CustomEntry>
+                        </CustomEntries>
+            </CustomControl>
+        </Control>
+    </Controls>
     <ViewDefinitions>
        <View>
             <Name>children</Name>
             <ViewSelectedBy>
                 <TypeName>Zookeeper.PSProvider.ItemsRepresntation.ShortNodeRepresentation</TypeName>
             </ViewSelectedBy>
+            <GroupBy>
+                <CustomControlName>ItemGrouping</CustomControlName>
+                <PropertyName>PSParentPath</PropertyName> 
+            </GroupBy>
             <TableControl>
                 <TableHeaders>
                    <TableColumnHeader>
                       <Label>Name</Label>
-                      <Width>30</Width>
-                      <Alignment>left</Alignment>
-                   </TableColumnHeader>
-                   <TableColumnHeader>
-                      <Label>Full name</Label>
-                      <Width>60</Width>
                       <Alignment>left</Alignment>
                    </TableColumnHeader>
                 </TableHeaders>
@@ -26,9 +53,6 @@
                             <TableColumnItem>
                                 <PropertyName>Name</PropertyName>
                             </TableColumnItem>
-                            <TableColumnItem>
-                                <PropertyName>FullName</PropertyName>
-                            </TableColumnItem>
                         </TableColumnItems>
                     </TableRowEntry>
                 </TableRowEntries>
@@ -37,7 +61,7 @@
        <View>
             <Name>children</Name>
             <ViewSelectedBy>
-                <TypeName>Zookeeper.PSProvider.NodeInfo</TypeName>
+                <TypeName>Zookeeper.PSProvider.ItemsRepresntation.LongNodeRepresentation</TypeName>
             </ViewSelectedBy>
             <TableControl>
                 <TableHeaders>
